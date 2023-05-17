@@ -1,0 +1,146 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+   <link rel="stylesheet" type="text/css" href="style.css">
+   <script type="text/javascript">
+
+var array = [];
+var ws = new WebSocket("ws://localhost:8080");
+var tempMax=0;
+ws.addEventListener('message', function(event){
+const message = JSON.parse(event.data);
+console.log(event.data);
+switch(message.type){
+   case "scheda": {
+      if (tempMax<1){
+      let numeriScheda= message.schedaT;
+      array = numeriScheda;
+      console.log(numeriScheda);
+      const numbers = numeriScheda;
+      
+         const numRows = 3;
+         const numCols = 5;
+
+         // Create a 2D array to hold the numbers
+         const tableData = new Array(numRows);
+         for (let i = 0; i < numRows; i++) {
+            tableData[i] = new Array(numCols);
+         }
+
+         // Populate the table data with the numbers
+         let numberIndex = 0;
+         for (let row = 0; row < numRows; row++) {
+            for (let col = 0; col < numCols; col++) {
+               tableData[row][col] = numbers[numberIndex];
+               numberIndex++;
+            }
+         }
+
+         // Create the table element and add it to the page
+         const table = document.createElement("table");
+         const tbody = document.createElement("tbody");
+         table.appendChild(tbody);
+         for (let row = 0; row < numRows; row++) {
+            const tr = document.createElement("tr");
+            tbody.appendChild(tr);
+            for (let col = 0; col < numCols; col++) {
+               const td = document.createElement("td");
+               td.textContent = tableData[row][col];
+               tr.appendChild(td);
+            }
+         }
+         document.body.appendChild(table);
+         tempMax+=1;
+      }
+      break;
+   }
+   case "numeroEstratto": {
+      let ultimoNum = message.numeroEstrattoT;
+      document.getElementById("numeroGen").innerText = "L'ultimo numero generato è: "+ultimoNum;
+      console.log(ultimoNum);
+      checkNumbers(ultimoNum);
+   }
+}
+});
+
+      function creaScheda() {
+   ws.send(JSON.stringify({type:"creaScheda"}))
+         
+}
+function estrazione() {
+   ws.send(JSON.stringify({type:"estrazione"}))
+         
+}
+
+function generaNumeri() {
+  const numeri = [];
+for(let i=1;i<91;i++){
+   numeri.push(i);
+}
+  return numeri;
+}
+
+
+
+function createTable() {
+      
+         const numbers = generaNumeri();
+         const numRows = 9;
+         const numCols = 10;
+
+         // Create a 2D array to hold the numbers
+         const tableData = new Array(numRows);
+         for (let i = 0; i < numRows; i++) {
+            tableData[i] = new Array(numCols);
+         }
+
+         // Populate the table data with the numbers
+         let numberIndex = 0;
+         for (let row = 0; row < numRows; row++) {
+            for (let col = 0; col < numCols; col++) {
+               tableData[row][col] = numbers[numberIndex];
+               numberIndex++;
+            }
+         }
+
+         // Create the table element and add it to the page
+         const table = document.createElement("table");
+         const tbody = document.createElement("tbody");
+         table.appendChild(tbody);
+         for (let row = 0; row < numRows; row++) {
+            const tr = document.createElement("tr");
+            tbody.appendChild(tr);
+            for (let col = 0; col < numCols; col++) {
+               const td = document.createElement("td");
+               td.textContent = tableData[row][col];
+               tr.appendChild(td);
+            }
+         }
+         document.body.appendChild(table);
+      }
+
+      var numertiPossedutiEstratti=0;
+      function checkNumbers(ultimoNum){
+         for(var i=0;i<array.length;i++){
+            if(array[i]==ultimoNum){
+               numertiPossedutiEstratti++;
+               document.getElementById("vincita").innerText="numeri della tua cartella estratti: "+numertiPossedutiEstratti;
+            }
+         }
+      }
+      
+
+   </script>
+
+</head>
+
+<body onload="createTable()">
+   <button onclick="creaScheda()">Crea Scheda</button>
+   <button onclick="estrazione()">Genera Numero</button>
+   <p id="numeroGen">L'ultimo numero generato è:</p>
+   <p id="vincita"></p>
+</body>
+
+</html>
